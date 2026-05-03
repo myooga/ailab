@@ -1,0 +1,60 @@
+:- dynamic known/2.
+
+ask(Question) :-
+    known(Question, yes), !.
+
+ask(Question) :-
+    known(Question, no), !, fail.
+
+ask(Question) :-
+    write('Do you have skill: '), write(Question), write('? (yes/no): '),
+    read(Response),
+    nl,
+    asserta(known(Question, Response)),
+    Response = yes.
+
+job(data_scientist) :-
+    ask(python),
+    ask(machine_learning),
+    ask(statistics).
+
+job(web_developer) :-
+    ask(html),
+    ask(css),
+    ask(javascript).
+
+job(android_developer) :-
+    ask(java),
+    ask(android).
+
+job(system_admin) :-
+    ask(networking),
+    ask(linux).
+
+job(database_admin) :-
+    ask(sql),
+    ask(database).
+
+job(ai_engineer) :-
+    ask(python),
+    ask(machine_learning),
+    ask(deep_learning).
+
+recommend(Job) :-
+    job(Job), !.
+
+recommend(no_match).
+
+start :-
+    retractall(known(_, _)),
+    write('--- JOB EXPERT SYSTEM ---'), nl,
+    recommend(Job),
+    nl,
+    explain(Job).
+
+explain(no_match) :-
+    write('No suitable job found based on your skills.'), nl.
+
+explain(Job) :-
+    write('Recommended Job: '), write(Job), nl,
+    write('Reason: You have the required skills.'), nl.

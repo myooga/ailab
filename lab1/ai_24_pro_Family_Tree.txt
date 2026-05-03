@@ -1,0 +1,156 @@
+
+//swish prolog version
+% FACTS
+
+parent(john, mary).
+parent(john, michael).
+parent(susan, mary).
+parent(susan, michael).
+
+parent(michael, tom).
+parent(michael, ann).
+parent(linda, tom).
+parent(linda, ann).
+
+parent(mary, peter).
+parent(david, peter).
+
+male(john).
+male(michael).
+male(tom).
+male(david).
+male(peter).
+
+female(susan).
+female(mary).
+female(linda).
+female(ann).
+
+spouse(john, susan).
+spouse(michael, linda).
+spouse(mary, david).
+
+% RULES
+
+married(X, Y) :- spouse(X, Y) ; spouse(Y, X).
+
+husband(X, Y) :- married(X, Y), male(X).
+wife(X, Y) :- married(X, Y), female(X).
+
+father(X, Y) :- parent(X, Y), male(X).
+mother(X, Y) :- parent(X, Y), female(X).
+
+child(X, Y) :- parent(Y, X).
+
+son(X, Y) :- child(X, Y), male(X).
+daughter(X, Y) :- child(X, Y), female(X).
+
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+
+brother(X, Y) :- sibling(X, Y), male(X).
+sister(X, Y) :- sibling(X, Y), female(X).
+
+grandparent(X, Y) :- parent(X, Z), parent(Z, Y).
+
+grandfather(X, Y) :- grandparent(X, Y), male(X).
+grandmother(X, Y) :- grandparent(X, Y), female(X).
+
+cousin(X, Y) :- parent(Z, X), parent(W, Y), sibling(Z, W).
+
+uncle(X, Y) :- 
+    brother(X, Z), 
+    parent(Z, Y).
+
+uncle(X, Y) :- 
+    husband(X, W), 
+    sister(W, Z), 
+    parent(Z, Y).
+
+aunt(X, Y) :- 
+    sister(X, Z), 
+    parent(Z, Y).
+
+aunt(X, Y) :- 
+    wife(X, W), 
+    brother(W, Z), 
+    parent(Z, Y).
+
+
+// below code runs on onecompiler
+parent(john, mary).
+parent(john, michael).
+parent(susan, mary).
+parent(susan, michael).
+
+parent(michael, tom).
+parent(michael, ann).
+parent(linda, tom).
+parent(linda, ann).
+
+parent(mary, peter).
+parent(david, peter).
+
+male(john).
+male(michael).
+male(tom).
+male(david).
+male(peter).
+
+female(susan).
+female(mary).
+female(linda).
+female(ann).
+
+spouse(john, susan).
+spouse(michael, linda).
+spouse(mary, david).
+
+married(X, Y) :- spouse(X, Y) ; spouse(Y, X).
+husband(X, Y) :- married(X, Y), male(X).
+wife(X, Y) :- married(X, Y), female(X).
+father(X, Y) :- parent(X, Y), male(X).
+mother(X, Y) :- parent(X, Y), female(X).
+child(X, Y) :- parent(Y, X).
+son(X, Y) :- child(X, Y), male(X).
+daughter(X, Y) :- child(X, Y), female(X).
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+brother(X, Y) :- sibling(X, Y), male(X).
+sister(X, Y) :- sibling(X, Y), female(X).
+grandparent(X, Y) :- parent(X, Z), parent(Z, Y).
+grandfather(X, Y) :- grandparent(X, Y), male(X).
+grandmother(X, Y) :- grandparent(X, Y), female(X).
+cousin(X, Y) :- parent(Z, X), parent(W, Y), sibling(Z, W).
+
+uncle(X, Y) :- 
+    brother(X, Z), 
+    parent(Z, Y).
+
+uncle(X, Y) :- 
+    husband(X, W), 
+    sister(W, Z), 
+    parent(Z, Y).
+
+aunt(X, Y) :- 
+    sister(X, Z), 
+    parent(Z, Y).
+
+aunt(X, Y) :- 
+    wife(X, W), 
+    brother(W, Z), 
+    parent(Z, Y).
+
+:- initialization(main).
+
+main :-
+    write('--- FAMILY TREE QUERIES ---'), nl,
+    
+    write('1. Is David the husband of Mary? -> '),
+    (husband(david, mary) -> write('Yes'), nl ; write('No'), nl),
+    
+    write('2. Who is the uncle of Tom? -> '),
+    uncle(Uncle, tom), write(Uncle), nl,
+    
+    write('3. Who is the grandmother of Peter? -> '),
+    grandmother(Grandma, peter), write(Grandma), nl,
+    
+    halt.
