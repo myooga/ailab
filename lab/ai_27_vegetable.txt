@@ -1,0 +1,66 @@
+% --------- Fruit & Vegetable Classification System ---------
+
+% Facts: Items
+item(apple).
+item(banana).
+item(mango).
+item(carrot).
+item(potato).
+item(spinach).
+item(tomato).
+item(cucumber).
+
+% Classification facts
+fruit(apple).
+fruit(banana).
+fruit(mango).
+fruit(tomato).
+fruit(cucumber).
+
+vegetable(carrot).
+vegetable(potato).
+vegetable(spinach).
+vegetable(tomato).
+
+% Properties
+sweet(apple).
+sweet(banana).
+sweet(mango).
+
+leafy(spinach).
+
+root(carrot).
+root(potato).
+
+% --------- Rules ---------
+
+type(X, fruit) :- fruit(X).
+type(X, vegetable) :- vegetable(X).
+
+type(X, sweet_fruit) :- fruit(X), sweet(X).
+type(X, leafy_vegetable) :- vegetable(X), leafy(X).
+type(X, root_vegetable) :- vegetable(X), root(X).
+
+edible(X) :- item(X).
+
+% --------- Main Predicate ---------
+main :-
+    write('Fruit & Vegetable Classification System'), nl,
+
+    write('Is mango a fruit? -> '),
+    (fruit(mango) -> write('Yes') ; write('No')), nl,
+
+    write('Is carrot a fruit? -> '),
+    (fruit(carrot) -> write('Yes') ; write('No')), nl,
+
+    write('Type of tomato -> '),
+    findall(T, type(tomato, T), TomatoTypes),
+    write(TomatoTypes), nl,
+
+    write('All sweet fruits -> '),
+    findall(F, type(F, sweet_fruit), SweetList),
+    write(SweetList), nl,
+
+    write('All root vegetables -> '),
+    findall(V, type(V, root_vegetable), RootList),
+    write(RootList), nl.

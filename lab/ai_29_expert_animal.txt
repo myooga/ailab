@@ -1,0 +1,83 @@
+:- dynamic known/2.
+
+ask(Question) :-
+    known(Question, yes), !.
+
+ask(Question) :-
+    known(Question, no), !, fail.
+
+ask(Question) :-
+    write('Does the animal have the following feature: '),
+    write(Question), write('? (yes/no): '),
+    read(Response),
+    nl,
+    asserta(known(Question, Response)),
+    Response = yes.
+
+animal(lion) :-
+    ask(has_hair),
+    ask(gives_milk),
+    ask(eats_meat),
+    ask(has_tawny_color).
+
+animal(tiger) :-
+    ask(has_hair),
+    ask(gives_milk),
+    ask(eats_meat),
+    ask(has_stripes).
+
+animal(elephant) :-
+    ask(has_hair),
+    ask(gives_milk),
+    ask(has_trunk).
+
+animal(giraffe) :-
+    ask(has_hair),
+    ask(gives_milk),
+    ask(has_long_neck),
+    ask(has_spots).
+
+animal(zebra) :-
+    ask(has_hair),
+    ask(gives_milk),
+    ask(has_stripes),
+    ask(is_herbivore).
+
+animal(eagle) :-
+    ask(has_feathers),
+    ask(can_fly),
+    ask(has_sharp_beak).
+
+animal(penguin) :-
+    ask(has_feathers),
+    ask(cannot_fly),
+    ask(swims).
+
+animal(snake) :-
+    ask(has_scales),
+    ask(cannot_fly),
+    ask(is_cold_blooded).
+
+animal(frog) :-
+    ask(lives_in_water),
+    ask(lives_on_land),
+    ask(has_smooth_skin).
+
+identify(Animal) :-
+    animal(Animal), !.
+
+identify(unknown).
+
+start :-
+    retractall(known(_, _)),
+    write('--- ANIMAL IDENTIFICATION SYSTEM ---'), nl,
+    identify(Animal),
+    nl,
+    explain(Animal).
+
+explain(unknown) :-
+    write('Could not identify the animal.'), nl.
+
+explain(Animal) :-
+    write('The animal is: '), write(Animal), nl,
+    write('Reason: Based on the features you provided.'), nl.

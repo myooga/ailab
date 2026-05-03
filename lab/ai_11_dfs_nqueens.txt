@@ -1,0 +1,92 @@
+#include <iostream>
+using namespace std;
+
+int n = 8;
+int board[8][8] = {0};
+
+bool is_safe(int row, int col)
+{
+    for (int i = 0; i < row; i++)
+    {
+        if (board[i][col] == 1)
+        {
+            return false;
+        }
+    }
+
+    for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
+    {
+        if (board[i][j] == 1)
+        {
+            return false;
+        }
+    }
+
+    for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++)
+    {
+        if (board[i][j] == 1)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool dfs(int row)
+{
+    if (row == n)
+    {
+        return true;
+    }
+
+    for (int col = 0; col < n; col++)
+    {
+        if (is_safe(row, col))
+        {
+            board[row][col] = 1;   
+
+            if (dfs(row + 1))
+            {
+                return true;
+            }
+
+            board[row][col] = 0;  
+        }
+    }
+
+    return false;
+}
+
+void print_board()
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            cout << board[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+/*Time Complexity=O(N!)
+Space Complexity=O(N^2)  → board
+O(N)    → recursion stack
+Time = O(b^d) = O(N^N)  (upper bound)
+Actual ≈ O(N!)
+Space = O(d) = O(N)*/
+
+int main()
+{
+    if (dfs(0))
+    {
+        cout << "Solution found:\n";
+        print_board();
+    }
+    else
+    {
+        cout << "No solution exists\n";
+    }
+
+    return 0;
+}

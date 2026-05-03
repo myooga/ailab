@@ -1,0 +1,131 @@
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+struct Node
+{
+    string name;
+    double f;
+    double g;
+
+    bool operator>(const Node &other) const
+    {
+        return f > other.f;
+    }
+};
+
+unordered_map<string, vector<string>> graph;
+unordered_map<string, pair<int,int>> coord;
+
+double heuristic(string current, string goal)
+{
+    int x1 = coord[current].first;
+    int y1 = coord[current].second;
+
+    int x2 = coord[goal].first;
+    int y2 = coord[goal].second;
+
+    return sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+}
+
+double distance(string a, string b)
+{
+    int x1 = coord[a].first;
+    int y1 = coord[a].second;
+
+    int x2 = coord[b].first;
+    int y2 = coord[b].second;
+
+    return sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+}
+
+void a_star(string start, string goal)
+{
+    priority_queue<Node, vector<Node>, greater<Node>> pq;
+    unordered_map<string, double> g_cost;
+    unordered_map<string, string> parent;
+
+    g_cost[start] = 0;
+    pq.push({start, heuristic(start, goal), 0});
+    parent[start] = "";
+
+    while (!pq.empty())
+    {
+        Node current = pq.top();
+        pq.pop();
+
+        string curr = current.name;
+
+        if (curr == goal)
+        {
+            cout << "Goal reached\n";
+
+            vector<string> path;
+            string temp = goal;
+
+            while (temp != "")
+            {
+                path.push_back(temp);
+                temp = parent[temp];
+            }
+
+            reverse(path.begin(), path.end());
+
+            cout << "Path: ";
+            for (string node : path)
+            {
+                cout << node << " ";
+            }
+            cout << endl;
+
+            return;
+        }
+
+        for (string next : graph[curr])
+        {
+            double new_g = g_cost[curr] + distance(curr, next);
+
+            if (g_cost.find(next) == g_cost.end() || new_g < g_cost[next])
+            {
+                g_cost[next] = new_g;
+                double f = new_g + heuristic(next, goal);
+
+                pq.push({next, f, new_g});
+                parent[next] = curr;
+            }
+        }
+    }
+
+    cout << "\nGoal not reachable\n";
+}
+
+/*
+T = O(b^d), O(E log V)
+S = O(b^d), O(V)
+*/
+
+int main()
+{
+    graph["A"] = {"B", "C"};
+    graph["B"] = {"G"};
+    graph["C"] = {"K"};
+    graph["G"] = {"F"};
+    graph["K"] = {};
+    graph["F"] = {};
+
+    coord["A"] = {0,0};
+    coord["B"] = {2,2};
+    coord["C"] = {1,4};
+    coord["G"] = {5,5};
+    coord["K"] = {2,6};
+    coord["F"] = {7,7};
+
+    a_star("A", "F");
+
+    return 0;
+}

@@ -1,0 +1,82 @@
+#include <iostream>
+#include <queue>
+#include <set>
+#include <vector>
+
+using namespace std;
+
+struct State {
+    int m, c, boat;
+    vector<string> path;
+};
+
+bool isValid(int m, int c) {
+    int m_right = 3 - m;
+    int c_right = 3 - c;
+
+    if (m < 0 || c < 0 || m > 3 || c > 3)
+        return false;
+
+    if ((m > 0 && c > m) || (m_right > 0 && c_right > m_right))
+        return false;
+
+    return true;
+}
+
+void bfs() {
+    queue<State> q;
+    set<string> visited;
+
+    State start = {3, 3, 0, {"(3,3,0)"}};
+    q.push(start);
+    visited.insert("3,3,0");
+
+    vector<pair<int,int>> moves = {
+        {1,0}, {2,0}, {0,1}, {0,2}, {1,1}
+    };
+
+    while (!q.empty()) {
+        State curr = q.front();
+        q.pop();
+
+        if (curr.m == 0 && curr.c == 0 && curr.boat == 1) {
+            cout << "Solution path:\n";
+            for (auto step : curr.path)
+                cout << step << endl;
+            return;
+        }
+
+        for (auto move : moves) {
+            int new_m, new_c, new_boat;
+
+            if (curr.boat == 0) { // boat on left
+                new_m = curr.m - move.first;
+                new_c = curr.c - move.second;
+                new_boat = 1;
+            } else { // boat on right
+                new_m = curr.m + move.first;
+                new_c = curr.c + move.second;
+                new_boat = 0;
+            }
+
+            if (isValid(new_m, new_c)) {
+                string key = to_string(new_m) + "," + to_string(new_c) + "," + to_string(new_boat);
+
+                if (visited.find(key) == visited.end()) {
+                    visited.insert(key);
+
+                    State next = {new_m, new_c, new_boat, curr.path};
+                    next.path.push_back("(" + key + ")");
+                    q.push(next);
+                }
+            }
+        }
+    }
+
+    cout << "No solution found.\n";
+}
+
+int main() {
+    bfs();
+    return 0;
+}

@@ -1,0 +1,85 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+
+using namespace std;
+
+long long weights[26] = {0};
+bool is_leading[26] = {false};
+int mapping[26]; 
+bool used_digit[10] = {false};
+vector<int> present_letters;
+int n;
+
+bool Place(int k, long long current_val) {
+    int letter_idx = present_letters[k];
+
+    if (mapping[letter_idx] == 0 && is_leading[letter_idx]) {
+        return false;
+    }
+    
+    if (k == n - 1) {
+        return (current_val + (mapping[letter_idx] * weights[letter_idx])) == 0;
+    }
+
+    return true;
+}
+
+void Backtrack(int k, long long current_val) {
+    int letter_idx = present_letters[k];
+
+    for (int digit = 0; digit <= 9; digit++) {
+        if (!used_digit[digit]) {
+            mapping[letter_idx] = digit;
+            
+            if (Place(k, current_val)) {
+                if (k == n - 1) {
+                    for (int i = 0; i < n; i++) {
+                        cout << (char)(present_letters[i] + 'A') << ":" << mapping[present_letters[i]] << " ";
+                    }
+                    cout << "\n";
+                } else {
+                    used_digit[digit] = true;
+                    Backtrack(k + 1, current_val + (digit * weights[letter_idx]));
+                    used_digit[digit] = false; 
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    int num_words;
+    cout << "Enter number of words (result is the last one): ";
+    cin >> num_words;
+
+    for (int i = 0; i < 26; i++) mapping[i] = -1;
+
+    for (int i = 0; i < num_words; i++) {
+        string s;
+        cin >> s;
+        if (s.length() > 1) is_leading[s[0] - 'A'] = true;
+
+        long long multiplier = 1;
+        for (int j = s.length() - 1; j >= 0; j--) {
+            int char_idx = s[j] - 'A';
+
+            if (i < num_words - 1) weights[char_idx] += multiplier;
+            else weights[char_idx] -= multiplier;
+            multiplier *= 10;
+        }
+    }
+
+    for (int i = 0; i < 26; i++) {
+        if (weights[i] != 0 || is_leading[i]) {
+            present_letters.push_back(i);
+        }
+    }
+
+    n = present_letters.size();
+    cout << "Solutions:\n";
+    Backtrack(0, 0);
+
+    return 0;
+}

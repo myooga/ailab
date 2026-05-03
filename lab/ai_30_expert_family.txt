@@ -1,0 +1,136 @@
+parent(john, mary).
+parent(john, michael).
+parent(susan, mary).
+parent(susan, michael).
+
+parent(michael, tom).
+parent(michael, ann).
+parent(linda, tom).
+parent(linda, ann).
+
+parent(mary, peter).
+parent(david, peter).
+
+male(john).
+male(michael).
+male(tom).
+male(david).
+male(peter).
+
+female(susan).
+female(mary).
+female(linda).
+female(ann).
+
+spouse(john, susan).
+spouse(michael, linda).
+spouse(mary, david).
+
+person(X) :- male(X).
+person(X) :- female(X).
+
+valid_relation(father).
+valid_relation(mother).
+valid_relation(brother).
+valid_relation(sister).
+valid_relation(grandfather).
+valid_relation(grandmother).
+
+married(X, Y) :- spouse(X, Y) ; spouse(Y, X).
+
+father(X, Y) :- parent(X, Y), male(X).
+mother(X, Y) :- parent(X, Y), female(X).
+
+child(X, Y) :- parent(Y, X).
+
+son(X, Y) :- child(X, Y), male(X).
+daughter(X, Y) :- child(X, Y), female(X).
+
+sibling(X, Y) :-
+    parent(Z, X),
+    parent(Z, Y),
+    X \= Y.
+
+brother(X, Y) :-
+    sibling(X, Y),
+    male(X).
+
+sister(X, Y) :-
+    sibling(X, Y),
+    female(X).
+
+grandparent(X, Y) :-
+    parent(X, Z),
+    parent(Z, Y).
+
+grandfather(X, Y) :-
+    grandparent(X, Y),
+    male(X).
+
+grandmother(X, Y) :-
+    grandparent(X, Y),
+    female(X).
+
+query :-
+    write('--- FAMILY TREE EXPERT SYSTEM ---'), nl,
+
+    write('Enter relation (father/mother/brother/sister/grandfather/grandmother): '),
+    read(Rel),
+
+    write('Enter first person: '),
+    read(X),
+
+    write('Enter second person: '),
+    read(Y), nl,
+
+    solve(Rel, X, Y).
+
+solve(Rel, _, _) :-
+    \+ valid_relation(Rel),
+    write('Error: Invalid relation entered.'), nl,
+    write('Valid relations are: father, mother, brother, sister, grandfather, grandmother'), nl,
+    !.
+
+solve(_, X, _) :-
+    \+ person(X),
+    write('Error: '), write(X), write(' is not in the database.'), nl,
+    !.
+
+solve(_, _, Y) :-
+    \+ person(Y),
+    write('Error: '), write(Y), write(' is not in the database.'), nl,
+    !.
+
+solve(father, X, Y) :-
+    father(X, Y),
+    explain(X, 'father', Y), !.
+
+solve(mother, X, Y) :-
+    mother(X, Y),
+    explain(X, 'mother', Y), !.
+
+solve(brother, X, Y) :-
+    brother(X, Y),
+    explain(X, 'brother', Y), !.
+
+solve(sister, X, Y) :-
+    sister(X, Y),
+    explain(X, 'sister', Y), !.
+
+solve(grandfather, X, Y) :-
+    grandfather(X, Y),
+    explain(X, 'grandfather', Y), !.
+
+solve(grandmother, X, Y) :-
+    grandmother(X, Y),
+    explain(X, 'grandmother', Y), !.
+
+solve(_, X, Y) :-
+    write('No valid relationship found between '),
+    write(X), write(' and '), write(Y), nl.
+
+explain(X, Relation, Y) :-
+    write('Conclusion: '),
+    write(X), write(' is '),
+    write(Relation), write(' of '),
+    write(Y), nl.

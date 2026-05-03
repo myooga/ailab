@@ -1,0 +1,106 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct state
+{
+    int m_left;
+    int c_left;
+    int boat;
+};
+
+vector<state> path;
+bool visited[4][4][2];
+
+// define moves globally
+int moves[5][2] = {
+    {1, 0}, 
+    {2, 0}, 
+    {0, 1}, 
+    {0, 2}, 
+    {1, 1} 
+};
+
+bool is_valid(int m_left, int c_left)
+{
+    int m_right = 3 - m_left;
+    int c_right = 3 - c_left;
+
+    if (m_left < 0 || c_left < 0 || m_left > 3 || c_left > 3)
+    {
+        return false;
+    }
+
+    if ((m_left > 0 && c_left > m_left) || (m_right > 0 && c_right > m_right))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool dfs(int m_left, int c_left, int boat)
+{
+    if (m_left == 0 && c_left == 0 && boat == 1)
+    {
+        path.push_back({m_left, c_left, boat});
+        return true;
+    }
+
+    if (visited[m_left][c_left][boat])
+    {
+        return false;
+    }
+
+    visited[m_left][c_left][boat] = true;
+    path.push_back({m_left, c_left, boat});
+
+    for (int i = 0; i < 5; i++)
+    {
+        int new_m, new_c, new_boat;
+
+        if (boat == 0) 
+        {
+            new_m = m_left - moves[i][0];
+            new_c = c_left - moves[i][1];
+            new_boat = 1;
+        }
+        else
+        {
+            new_m = m_left + moves[i][0];
+            new_c = c_left + moves[i][1];
+            new_boat = 0;
+        }
+
+        if (is_valid(new_m, new_c))
+        {
+            if (dfs(new_m, new_c, new_boat))
+            {
+                return true;
+            }
+        }
+    }
+
+    path.pop_back();
+    return false;
+}
+
+void print_path()
+{
+    for (int i = 0; i < path.size(); i++)
+    {
+        cout << "M_left: " << path[i].m_left
+             << ", C_left: " << path[i].c_left
+             << ", Boat: " << (path[i].boat == 0 ? "Left" : "Right")
+             << endl;
+    }
+}
+/*Time Complexity=O(b^d)
+Space Complexity = O(d)
+*/
+int main()
+{
+    dfs(3, 3, 0);
+    print_path();
+    return 0;
+}
