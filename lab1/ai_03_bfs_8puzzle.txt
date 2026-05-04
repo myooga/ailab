@@ -1,13 +1,13 @@
 #include <iostream>
 #include <queue>
-#include <set>
+#include <map>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 struct State {
     vector<vector<int>> board;
-    int x, y; // position of zero
-    int level;
+    int x, y;
 };
 
 vector<vector<int>> goal = {
@@ -30,10 +30,11 @@ string serialize(vector<vector<int>> &b) {
     return s;
 }
 
-vector<State> getNextStates(State curr) {
-    vector<State> next;
+vector<pair<State,string>> getNextStates(State curr) {
+    vector<pair<State,string>> next;
     int dx[] = {-1,1,0,0};
     int dy[] = {0,0,-1,1};
+    string moves[] = {"UP","DOWN","LEFT","RIGHT"};
 
     for (int i = 0; i < 4; i++) {
         int nx = curr.x + dx[i];
@@ -44,22 +45,30 @@ vector<State> getNextStates(State curr) {
             swap(newState.board[curr.x][curr.y], newState.board[nx][ny]);
             newState.x = nx;
             newState.y = ny;
-            newState.level = curr.level + 1;
-            next.push_back(newState);
+            next.push_back({newState, moves[i]});
         }
     }
     return next;
 }
 
+void printBoard(vector<vector<int>> &b) {
+    for (auto &row : b) {
+        for (auto &val : row) {
+            cout << val << " ";
+        }
+        cout << endl;
+    }
+    cout << "--------" << endl;
+}
+
 void BFS(vector<vector<int>> start) {
     queue<State> q;
-    set<string> visited;
+    map<string, string> parent;
+    map<string, string> moveTaken;
 
     State init;
     init.board = start;
-    init.level = 0;
 
-    // find zero position
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             if (start[i][j] == 0) {
@@ -69,40 +78,80 @@ void BFS(vector<vector<int>> start) {
         }
     }
 
+    string startKey = serialize(start);
     q.push(init);
-    visited.insert(serialize(start));
+    parent[startKey] = "";
 
     while (!q.empty()) {
         State curr = q.front();
         q.pop();
 
+        string currKey = serialize(curr.board);
+
         if (isGoal(curr.board)) {
-            cout << "Goal reached at level: " << curr.level << endl;
+            cout << "Goal reached!\n\n";
+
+            vector<string> path;
+            string temp = currKey;
+
+            while (temp != "") {
+                path.push_back(temp);
+                temp = parent[temp];
+            }
+
+            reverse(path.begin(), path.end());
+
+            for (int i = 0; i < path.size(); i++) {
+                string s = path[i];
+                vector<vector<int>> board(3, vector<int>(3));
+                int k = 0;
+
+                for (int r = 0; r < 3; r++) {
+                    for (int c = 0; c < 3; c++) {
+                        board[r][c] = s[k++] - '0';
+                    }
+                }
+
+                cout << "Step " << i << endl;
+                printBoard(board);
+
+                if (i > 0) {
+                    cout << "Move: " << moveTaken[s] << endl;
+                }
+            }
+
+            cout << "Total moves: " << path.size() - 1 << endl;
             return;
         }
 
-        vector<State> neighbors = getNextStates(curr);
+        auto neighbors = getNextStates(curr);
 
-        for (auto &n : neighbors) {
-            string key = serialize(n.board);
-            if (visited.find(key) == visited.end()) {
-                q.push(n);
-                visited.insert(key);
+        for (auto &p : neighbors) {
+            State nextState = p.first;
+            string move = p.second;
+
+            string key = serialize(nextState.board);
+
+            if (parent.find(key) == parent.end()) {
+                q.push(nextState);
+                parent[key] = currKey;
+                moveTaken[key] = move;
             }
         }
     }
 
     cout << "No solution found!" << endl;
 }
-
+/*
+T=O(B^D),O(9!),O(V+E)
+S=O(B^D),O(9!)
+*/
 int main() {
     vector<vector<int>> start = {
         {1,2,3},
         {4,0,5},
         {7,8,6}
     };
-
     BFS(start);
-
     return 0;
 }
